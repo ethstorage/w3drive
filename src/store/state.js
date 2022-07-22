@@ -4,5 +4,5 @@ export const chains = [{
 },
 {
   chainID: '0xd06',
-  FileBoxController:'0x731Cd5311e9bAd1E99e7F1081A91a38c02b5F47d',
+  FileBoxController:'0xa5A0Abeb554127650b83551147a3B426f996BD63',
 }];

@@ -13,7 +13,7 @@
         &nbsp;|&nbsp;
         {{ this.networkId === 3334 ? "Galileo Testnet": "Mainnet" }}
       </div>
-      <div class="favorite" @click.stop="goProfile"/>
+      <div v-if="this.driveKey" class="favorite" @click.stop="goProfile"/>
     </div>
   </div>
 </template>
@@ -57,6 +57,9 @@ export default {
         )
       );
     },
+    driveKey() {
+      return this.$store.state.driveKey;
+    }
   },
   methods: {
     ...mapActions(["setChainConfig", "setAccount"]),
@@ -165,7 +168,7 @@ export default {
       }
     },
     goProfile(){
-      this.$router.push({path: "/address/" + this.currentAccount});
+      this.$router.push({path: "/address"});
     }
   },
 };
@@ -213,6 +216,7 @@ export default {
   border: 0;
   background: #52DEFF;
   border-radius: 36px;
+  cursor: pointer;
 }
 .btn-connect:hover {
   background-color: #52DEFF90;

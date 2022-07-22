@@ -7,8 +7,10 @@ const FileContractInfo = {
         "function removes(bytes[] memory names) public",
         "function countChunks(bytes memory name) external view returns (uint256)",
         "function getChunkHash(bytes memory name, uint256 chunkId) public view returns (bytes32)",
+
+        "function createDrive(bytes memory uuid, bytes memory iv, bytes memory driveEncrypt) public",
+        "function getDrive() public view returns(bytes memory uuid, bytes memory iv, bytes memory driveEncrypt)",
         "function getFileInfos() public view returns (uint256[] memory times,bytes[] memory uuids,bytes[] memory names,bytes[] memory types)",
-        "function getDriveId() public view returns(bytes memory)",
         "function getFile(bytes memory uuid) public view returns(bytes memory)"
     ],
 };
