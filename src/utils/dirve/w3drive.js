@@ -1,6 +1,6 @@
 import {ethers} from "ethers";
 import {FileContract} from "../contract";
-import {deriveDriveKey, fileEncrypt, driveEncrypt, driveDecrypt} from "./w3crypto";
+import {deriveDriveKey, deriveFileKey, fileEncrypt, driveEncrypt, driveDecrypt} from "./w3crypto";
 
 const stringToHex = (s) => ethers.utils.hexlify(ethers.utils.toUtf8Bytes(s));
 const hexToString = (h) => ethers.utils.toUtf8String(h);
@@ -52,8 +52,9 @@ export const encryptDrive = async (signature, password, iv, encryptData) => {
     }
 }
 
-export const encrypt = async (fileKey, path) => {
-    return await fileEncrypt(fileKey, path);
+export const createFileEncrypt = async (driveKey, fileId, data) => {
+    const fileKey = await deriveFileKey(driveKey, fileId);
+    return await fileEncrypt(fileKey, data);
 }
 
 // const fileinfo = await fileEncrypt("EnAPR72tkIFRbrWDCF4ROAtyJ3YdtYscuY2xmlfghCg", content);

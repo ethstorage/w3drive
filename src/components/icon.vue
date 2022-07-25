@@ -4,6 +4,7 @@
     v-on="$listeners"
     class="go-icon"
     aria-hidden="true"
+    :color="this.color"
   >
     <use :xlink:href="`#${name}`"></use>
   </svg>
@@ -19,6 +20,9 @@ export default {
     name: {
       type: String,
       required: true
+    },
+    color: {
+      type: String,
     }
   },
 };

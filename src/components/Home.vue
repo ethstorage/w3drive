@@ -8,7 +8,7 @@
       censorship-resistant and permanent hard drive.
     </p>
 
-    <w3q-deployer v-if="driveKey" multiple :fileContract="contract" style="width: 500px"/>
+    <w3q-deployer v-if="driveKey" multiple :fileContract="contract" :driveKey="this.driveKey" style="width: 500px"/>
     <div v-else class="drive">
       <el-input placeholder="Input Password" v-model="input" show-password></el-input>
       <el-button v-if="this.drive&&this.drive.uuid!=='none'" :disabled="!this.signature"

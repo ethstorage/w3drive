@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import { FileContract } from "./contract";
-const sha3 = require('js-sha3').keccak_256;
+import { v4 as uuidv4} from 'uuid';
+import { createFileEncrypt } from "./dirve/w3drive";
 
 const stringToHex = (s) => ethers.utils.hexlify(ethers.utils.toUtf8Bytes(s));
 
@@ -11,6 +12,17 @@ const readFile = (file) => {
       resolve(Buffer.from(res.target.result));
     };
     reader.readAsArrayBuffer(file);
+  });
+}
+
+const base64Img = (file) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (res) => {
+      console.log(res.target.result);
+      resolve(res.target.result);
+    };
+    reader.readAsDataURL(file);
   });
 }
 
@@ -25,24 +37,8 @@ const bufferChunk = (buffer, chunkSize) => {
   return result;
 }
 
-const clearOldFile = async (fileContract, chunkSize, hexName) => {
-  try {
-    const oldChunkSize = await fileContract.countChunks(hexName);
-    if (oldChunkSize > chunkSize) {
-      // remove
-      const tx = await fileContract.remove(hexName);
-      console.log(`Remove file: ${hexName}`);
-      console.log(`Transaction Id: ${tx.hash}`);
-      const receipt = await tx.wait();
-      return receipt.status;
-    }
-  } catch (e) {
-    return false;
-  }
-  return true;
-}
-
 const request = async ({
+  driveKey,
   contractAddress,
   dirPath,
   file,
@@ -65,16 +61,19 @@ const request = async ({
     onError(new Error("Can't get Account"));
     return;
   }
+  console.log(dirPath);
 
-
+  // read file
   const rawFile = file.raw;
-  const content = await readFile(rawFile);
-  // file name
-  const name = dirPath + rawFile.name;
-  const hexName = stringToHex(name);
-  const hexType = stringToHex(rawFile.type);
+  const data = await readFile(rawFile);
+  // encrypt file
+  const uuid = uuidv4();
+  const encryptResult = await createFileEncrypt(driveKey, uuid, data);
+  const content = encryptResult.data;
+  const iv = encryptResult.cipherIV;// iv is different every time
+
   // Data need to be sliced if file > 475K
-  let fileSize = rawFile.size;
+  let fileSize = content.length;
   let chunks = [];
   if (fileSize > 475 * 1024) {
     const chunkSize = Math.ceil(fileSize / (475 * 1024));
@@ -84,13 +83,13 @@ const request = async ({
     chunks.push(content);
   }
 
-  const fileContract = FileContract(contractAddress);
-  const clear = await clearOldFile(fileContract, chunks.length, hexName, hexType)
-  if (!clear) {
-    onError(new Error("Check Old File Fail!"));
-    return;
-  }
+  // file name
+  const hexUuid = stringToHex(uuid);
+  const hexName = stringToHex(rawFile.name);
+  const hexType = stringToHex(rawFile.type);
+  const hexIv = stringToHex(iv);
 
+  const fileContract = FileContract(contractAddress);
   let uploadState = true;
   for (const index in chunks) {
     const chunk = chunks[index];
@@ -99,17 +98,9 @@ const request = async ({
       cost = Math.floor((fileSize + 326) / 1024 / 24);
     }
     const hexData = '0x' + chunk.toString('hex');
-    const localHash = '0x' + sha3(chunk);
-    const hash = await fileContract.getChunkHash(hexName, index);
-    if (localHash === hash) {
-      console.log(`File ${name} chunkId: ${index}: The data is not changed.`);
-      onProgress({ percent: Number(index) + 1});
-      continue;
-    }
-
     try {
       // file is remove or change
-      const tx = await fileContract.writeChunk(hexName, hexType, index, hexData, {
+      const tx = await fileContract.writeChunk(hexUuid, hexName, hexType, hexIv, index, hexData, {
         value: ethers.utils.parseEther(cost.toString())
       });
       console.log(`Transaction Id: ${tx.hash}`);
@@ -125,8 +116,12 @@ const request = async ({
     }
   }
   if (uploadState) {
-    const url = "https://galileo.web3q.io/file.w3q/" + account + "/" + name;
-    onSuccess({ path: url});
+    if(rawFile.type.includes('image')) {
+      const img = await base64Img(rawFile);
+      onSuccess({uuid: uuid, img: img});
+      return;
+    }
+    onSuccess({ uuid: uuid});
   } else {
     onError(new Error('upload request failed!'));
   }

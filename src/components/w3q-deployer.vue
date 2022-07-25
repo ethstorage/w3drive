@@ -30,6 +30,10 @@ export default {
   name: 'w3q-deployer',
   components: { UploadDragger, UploadList },
   props: {
+    driveKey: {
+      type: String,
+      default: ""
+    },
     fileContract: {
       type: String,
       default: ""
@@ -140,6 +144,7 @@ export default {
     normalizeReq (file) {
       const { uid } = file;
       this.reqs[uid] = {
+        driveKey: this.driveKey,
         contractAddress: this.fileContract,
         dirPath: this.dirPath,
         file: file,
@@ -187,7 +192,7 @@ export default {
       delete this.reqs[uid];
       file.status = 'success';
       // Not only front end can implement picture preview but also back end can do it. Here make use of back end api
-      this.$set(file, 'url', response.path);
+      this.$set(file, 'img', response.img);
       this.onChange(file, this.files);
       this.onSuccess(response, file, this.files);
     },

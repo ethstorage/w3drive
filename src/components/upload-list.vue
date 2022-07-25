@@ -5,13 +5,14 @@
       <div class="go-upload-list-item-img">
         <update-icon v-if="file.status === 'pending'" class="go-upload-item-img-loading" name="loading"/>
         <template v-else-if="file.status === 'success'">
-          <img v-if="isImage(file.type)" class="go-upload-list-item-img" :src="file.url" alt="">
+          <img v-if="isImage(file.type)" class="go-upload-list-item-img" :src="file.img" alt="">
           <update-icon v-else class="go-upload-item-file" name="file"/>
         </template>
         <update-icon v-else-if="file.status === 'failure'" class="go-upload-item-img-error" name="picture"/>
         <update-icon v-else class="go-upload-item-file" name="file"/>
       </div>
 
+      <!--   TODO   -->
       <div class="go-upload-list-item-name">
         <a v-if="file.status==='success'" :href="file.url" target="_blank">
           <span>{{ file.name }}</span>
@@ -20,8 +21,8 @@
         <my-progress v-if="file.status === 'pending'" :percent="file.percent" :chunks="file.totalChunks"></my-progress>
       </div>
 
-      <span v-if="file.status === 'success'" class="go-upload-list-item-delete" @click="onCopy(file.url)">
-          <update-icon name="copy"></update-icon>
+      <span v-if="file.status === 'success'" class="go-upload-list-item-delete" style="cursor: auto">
+          <update-icon name="success" color="#52DEFF"></update-icon>
       </span>
       <span v-if="file.status === 'failure'" class="go-upload-list-item-delete" @click="onUpload(file)">
           <update-icon name="upload"></update-icon>
