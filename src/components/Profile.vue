@@ -26,26 +26,18 @@
 
       <!--   data   -->
       <div v-else class="profile-date">
-        <div class="list-item" v-for="(item) in this.result" :key="item.url">
+        <div class="list-item" v-for="(item) in this.result" :key="item.uuid">
           <div style="display:flex; flex-direction: row; align-items: center">
             <input v-if="isDelete" style="padding: 15px; margin-right: 15px" :id="item.url" :value="item" type="checkbox" v-model="checkedDeletes"/>
-            <template>
-              <img v-if="isImage(renderName(item.type))" class="go-upload-list-item-img" :src="item.url" alt="">
-              <update-icon v-else class="go-upload-list-item-img" name="file"/>
-            </template>
+            <update-icon class="go-upload-list-item-img" name="file"/>
             <div class="go-upload-list-item-name">
-              <a :href="item.url" target="_blank">
-                {{ renderName(item.name) }}
-              </a>
+              <a :href="item.url" target="_blank">{{ renderName(item.name) }}</a>
             </div>
           </div>
 
           <span>{{ renderTimestamp(item.time) }}</span>
 
           <div>
-            <span class="go-upload-list-item-delete" @click="onCopy(item.url)">
-              <update-icon name="copy"></update-icon>
-            </span>
             <span v-if="item.showProgress" class="go-upload-list-item-delete">
               <update-icon class="icon-loading" name="loading"></update-icon>
             </span>
@@ -64,7 +56,6 @@ import {ethers} from "ethers";
 import UpdateIcon from "./icon";
 import {getUploadByAddress, deleteFile, deleteFiles} from '@/utils/profile';
 
-const copy = require('clipboard-copy')
 const hexToString = (h) => ethers.utils.toUtf8String(h);
 
 export default {
@@ -82,6 +73,9 @@ export default {
     chainConfig() {
       return this.$store.state.chainConfig;
     },
+    driveKey() {
+      return this.$store.state.driveKey;
+    }
   },
   watch: {
     chainConfig: function () {
@@ -115,7 +109,7 @@ export default {
       if (!FileBoxController) {
         return;
       }
-      getUploadByAddress(FileBoxController, this.$route.params.address)
+      getUploadByAddress(FileBoxController)
           .then(value => {
             this.result = value;
           })
@@ -123,21 +117,13 @@ export default {
             this.result = [];
           });
     },
-    onCopy(url){
-      copy(url);
-      this.$notify({
-        title: 'Success',
-        message: 'Copy Success',
-        type: 'success'
-      });
-    },
     onDelete(item) {
       const { FileBoxController} = this.$store.state.chainConfig;
       if (!FileBoxController) {
         return;
       }
       item.showProgress = true;
-      deleteFile(FileBoxController, item.name)
+      deleteFile(FileBoxController, item.uuid)
           .then((v) => {
             if (v) {
               this.result = this.result.filter(value => item !== value);
@@ -177,12 +163,12 @@ export default {
         return;
       }
       if (this.checkedDeletes.length > 0) {
-        const names = [];
+        const uuids = [];
         for(const item of this.checkedDeletes) {
           item.showProgress = true;
-          names.push(item.name);
+          uuids.push(item.uuid);
         }
-        deleteFiles(FileBoxController, names)
+        deleteFiles(FileBoxController, uuids)
             .then((v) => {
               if (v) {
                 for(const item of this.checkedDeletes) {
@@ -319,8 +305,8 @@ export default {
   border: 1px solid rgba(35,46,63,.4);
 }
 .go-upload-list-item-img {
-  width: 80px;
-  height: 80px;
+  width: 35px;
+  height: 35px;
 }
 .go-upload-list-item-name {
   font-size: 19px;

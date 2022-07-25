@@ -3,12 +3,12 @@ import {ethers} from "ethers";
 const FileContractInfo = {
     abi: [
         "function writeChunk(bytes memory uuid, bytes memory name, bytes memory iv, bytes memory fileType, uint256 chunkId, bytes calldata data) public payable",
-        "function remove(bytes memory name) external returns (uint256)",
-        "function removes(bytes[] memory names) public",
+        "function remove(bytes memory uuid) external returns (uint256)",
+        "function removes(bytes[] memory uuids) public",
 
         "function createDrive(bytes memory uuid, bytes memory iv, bytes memory driveEncrypt) public",
         "function getDrive() public view returns(bytes memory uuid, bytes memory iv, bytes memory driveEncrypt)",
-        "function getFileInfos() public view returns (uint256[] memory times,bytes[] memory uuids,bytes[] memory names,bytes[] memory types)",
+        "function getFileInfos() public view returns (uint256[] memory times,bytes[] memory uuids,bytes[] memory names,bytes[] memory types,bytes[] memory ivs)",
         "function getFile(bytes memory uuid) public view returns(bytes memory)"
     ],
 };
