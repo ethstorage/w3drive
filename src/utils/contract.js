@@ -8,9 +8,8 @@ const FileContractInfo = {
 
         "function createDrive(bytes memory uuid, bytes memory iv, bytes memory driveEncrypt) public",
         "function getDrive() public view returns(bytes memory uuid, bytes memory iv, bytes memory driveEncrypt)",
-        "function getFileInfos() public view returns (uint256[] memory times,bytes[] memory uuids,bytes[] memory names,bytes[] memory types,bytes[] memory ivs)",
-        "function getFileInfo(bytes memory uuid) public view returns(uint256 time,bytes memory name,bytes memory fileType,bytes memory iv)",
-        "function countChunks(bytes memory uuid) public view returns (uint256)",
+        "function getFileInfos() public view returns (uint256[] memory times,bytes[] memory uuids,bytes[] memory names,bytes[] memory types)",
+        "function getFileInfo(bytes memory uuid) public view returns(uint256 chunkCount,uint256 time,bytes memory name,bytes memory fileType,bytes memory iv)",
         "function getFile(bytes memory uuid, uint256 chunkId) public view returns(bytes memory)"
     ],
 };

@@ -59,7 +59,6 @@ export const createFileEncrypt = async (driveKey, fileId, data) => {
 
 export const decryptFile = async (driveKey, fileId, encryptData, iv) => {
     const fileKey = await deriveFileKey(driveKey, fileId);
-    encryptData = encryptData.substr(2, encryptData.length - 1);
     const data = Buffer.from(encryptData, 'hex');
     return await fileDecrypt(iv, fileKey, data);
 }

@@ -12,14 +12,12 @@ export const getUploadByAddress = async (contract) => {
     const uuids = result[1];
     const names = result[2];
     const types = result[3];
-    const ivs = result[4];
     for (let i = 0; i < uuids.length; i++) {
         const file = {
             time: new Date(parseInt(times[i], 10) * 1000),
             uuid: uuids[i],
             name: names[i],
             type: types[i],
-            ivs: ivs[i],
             showProgress: false
         };
         files.push(file);
@@ -46,17 +44,53 @@ export const deleteFiles = async (contract, uuids) => {
 
 export const getFile = async (contract, driveKey, uuid) => {
     const fileContract = FileContract(contract);
-    const [fileInfo, encryptData] = await Promise.all([
-        fileContract.getFileInfo(uuid),
-        fileContract.getFile(uuid, 0),
-    ]);
-    uuid = hexToString(uuid);
-    const iv = hexToString(fileInfo.iv);
-    const data = await decryptFile(driveKey, uuid, encryptData, iv);
+    const fileInfo  = await fileContract.getFileInfo(uuid);
+    const isImage = hexToString(fileInfo.fileType).includes('image');
+    if (isImage) {
+        const quest = [];
+        for (let i = 0; i < fileInfo.chunkCount.toNumber(); i++) {
+            quest.push(fileContract.getFile(uuid, i));
+        }
+        const encryptDatas = await Promise.all(quest);
+        let encryptData = '';
+        for (let data of encryptDatas) {
+            data = data.substr(2, data.length - 1);
+            encryptData = encryptData + data;
+        }
+        uuid = hexToString(uuid);
+        const iv = hexToString(fileInfo.iv);
+        const data = await decryptFile(driveKey, uuid, encryptData, iv);
+        return {
+            name: fileInfo.name,
+            time: new Date(parseInt(fileInfo.time, 10) * 1000),
+            type: fileInfo.fileType,
+            data,
+        }
+    }
+
     return {
         name: fileInfo.name,
         time: new Date(parseInt(fileInfo.time, 10) * 1000),
         type: fileInfo.fileType,
-        data,
+        chunkCount: fileInfo.chunkCount.toNumber(),
+        iv: hexToString(fileInfo.iv),
     }
+}
+
+export const downloadFile = async (contract, driveKey, uuid, iv, count) => {
+    const fileContract = FileContract(contract);
+    const quest = [];
+    for (let i = 0; i < count; i++) {
+        quest.push(fileContract.getFile(uuid, i));
+    }
+    const encryptDatas = await Promise.all(quest);
+    let encryptData = '';
+    for (let data of encryptDatas) {
+        data = data.substr(2, data.length - 1);
+        encryptData = encryptData + data;
+    }
+
+    // decrypt
+    uuid = hexToString(uuid);
+    return await decryptFile(driveKey, uuid, encryptData, iv);
 }

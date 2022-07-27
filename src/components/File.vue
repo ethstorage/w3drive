@@ -7,11 +7,13 @@
           <span class="file-title-text">{{ renderName(this.file.name) }}</span>
           <span class="file-title-time">{{ renderTimestamp(this.file.time) }}</span>
         </div>
+        <el-button round class="profile-delete-btn" @click="onDownload">Download</el-button>
       </div>
       <div class="divider"/>
       <!--   data   -->
       <div class="profile-date">
-        <img v-if="this.isImage(file.type)" :src="'data:image/png;base64,' + arrayBufferToBase64(this.file.data)"/>
+        <img v-if="this.isImage(this.file.type)" :src="'data:image/png;base64,' + arrayBufferToBase64(this.file.data)"/>
+        <update-icon v-else class="go-upload-list-item-img" name="file"/>
       </div>
     </el-card>
   </div>
@@ -19,8 +21,9 @@
 
 <script>
 import {ethers} from "ethers";
-// import UpdateIcon from "./icon";
-import {getFile, deleteFile} from '@/utils/profile';
+import fileDownload from "js-file-download";
+import UpdateIcon from "./icon";
+import {getFile, downloadFile, deleteFile} from '@/utils/profile';
 
 const stringToHex = (s) => ethers.utils.hexlify(ethers.utils.toUtf8Bytes(s));
 const hexToString = (h) => ethers.utils.toUtf8String(h);
@@ -35,7 +38,7 @@ export default {
       checkedDeletes: []
     };
   },
-  // components: { UpdateIcon },
+  components: { UpdateIcon },
   computed: {
     driveKey() {
       return this.$store.state.driveKey;
@@ -100,6 +103,24 @@ export default {
     },
     goHome() {
       this.$router.push({path: "/"});
+    },
+    async onDownload() {
+      if (!this.file) {
+        return;
+      }
+
+      // download image
+      if (this.file.data) {
+        fileDownload(this.file.data, this.renderName(this.file.name));
+        return;
+      }
+
+      const { FileBoxController} = this.$store.state.chainConfig;
+      if (!FileBoxController) {
+        return;
+      }
+      const data = await downloadFile(FileBoxController, this.driveKey, this.uuid, this.file.iv, this.file.chunkCount);
+      fileDownload(data, this.renderName(this.file.name));
     },
     onDelete() {
       const { FileBoxController} = this.$store.state.chainConfig;
@@ -169,6 +190,18 @@ export default {
   margin-top: 6px;
 }
 
+.profile-delete-btn {
+  background-color: #52DEFF;
+  font-size: 16px;
+  border: 0;
+  color: #ffffff;
+}
+.profile-delete-btn:focus,
+.profile-delete-btn:hover {
+  background-color: #52DEFFBB;
+  color: #ffffff;
+}
+
 .divider {
   background-color: #E8E6F2;
   height: 1px;
@@ -186,16 +219,9 @@ export default {
   justify-content: center;
   align-items: center;
 }
-
-.profile-btn {
-  background-color: #52DEFF;
-  margin-top: 15px;
-  font-size: 18px;
-  border: 0;
-}
-.profile-btn:focus,
-.profile-btn:hover {
-  background-color: #52DEFFBB;
+.go-upload-list-item-img {
+  width: 90px;
+  height: 90px;
 }
 
 .icon-loading {
@@ -214,10 +240,6 @@ export default {
   .profile-card {
     padding: 0;
     margin-top: 5px;
-  }
-
-  .profile-date {
-    justify-content: center;
   }
 }
 </style>
