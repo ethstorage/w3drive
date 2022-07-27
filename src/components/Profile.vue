@@ -31,7 +31,7 @@
             <input v-if="isDelete" style="padding: 15px; margin-right: 15px" :id="item.url" :value="item" type="checkbox" v-model="checkedDeletes"/>
             <update-icon class="go-upload-list-item-img" name="file"/>
             <div class="go-upload-list-item-name">
-              <a :href="item.url" target="_blank">{{ renderName(item.name) }}</a>
+              <router-link :to="'/file/'+renderName(item.uuid)">{{ renderName(item.name) }}</router-link>
             </div>
           </div>
 
@@ -70,22 +70,21 @@ export default {
   },
   components: { UpdateIcon },
   computed: {
-    chainConfig() {
-      return this.$store.state.chainConfig;
-    },
     driveKey() {
       return this.$store.state.driveKey;
     }
   },
   watch: {
-    chainConfig: function () {
-      if (this.$store.state.chainConfig && this.$store.state.chainConfig.chainID) {
-        this.onSearch();
-      }
+    driveKey: function () {
+      this.goHome();
     }
   },
   created() {
-    this.onSearch();
+    if(this.driveKey){
+      this.onSearch();
+    } else {
+      this.goHome();
+    }
   },
   methods: {
     renderTimestamp(ts) {

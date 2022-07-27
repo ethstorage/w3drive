@@ -193,6 +193,8 @@ export default {
       file.status = 'success';
       // Not only front end can implement picture preview but also back end can do it. Here make use of back end api
       this.$set(file, 'img', response.img);
+      this.$set(file, 'uuid', response.uuid);
+
       this.onChange(file, this.files);
       this.onSuccess(response, file, this.files);
     },

@@ -73,14 +73,8 @@ export default {
         return undefined;
       },
       default: undefined,
-      watch: ['account', 'drive']
+      watch: ['drive']
     }
-  },
-  watch: {
-    account: function () {
-      this.setDriveKey('');
-      this.input = '';
-    },
   },
   methods: {
     ...mapActions(["setDriveKey"]),
@@ -108,7 +102,6 @@ export default {
       const driveKey = await encryptDrive(this.signature, password, this.drive.iv, this.drive.encrypt);
       if (driveKey) {
         this.setDriveKey(driveKey);
-        this.$notify({title: 'Transaction', message: "Login Success", type: 'success'});
       } else {
         this.$message.error('Password Error');
       }

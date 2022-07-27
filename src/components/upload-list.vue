@@ -12,11 +12,8 @@
         <update-icon v-else class="go-upload-item-file" name="file"/>
       </div>
 
-      <!--   TODO   -->
       <div class="go-upload-list-item-name">
-        <a v-if="file.status==='success'" :href="file.url" target="_blank">
-          <span>{{ file.name }}</span>
-        </a>
+        <router-link v-if="file.status==='success'" :to="'/file/'+file.uuid">{{ file.name }}</router-link>
         <span v-else>{{ file.name }}</span>
         <my-progress v-if="file.status === 'pending'" :percent="file.percent" :chunks="file.totalChunks"></my-progress>
       </div>

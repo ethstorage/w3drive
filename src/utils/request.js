@@ -19,7 +19,6 @@ const base64Img = (file) => {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (res) => {
-      console.log(res.target.result);
       resolve(res.target.result);
     };
     reader.readAsDataURL(file);
@@ -100,7 +99,7 @@ const request = async ({
     const hexData = '0x' + chunk.toString('hex');
     try {
       // file is remove or change
-      const tx = await fileContract.writeChunk(hexUuid, hexName, hexType, hexIv, index, hexData, {
+      const tx = await fileContract.writeChunk(hexUuid, hexName, hexIv, hexType, index, hexData, {
         value: ethers.utils.parseEther(cost.toString())
       });
       console.log(`Transaction Id: ${tx.hash}`);
