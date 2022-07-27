@@ -99,7 +99,7 @@ const request = async ({
     const hexData = '0x' + chunk.toString('hex');
     try {
       // file is remove or change
-      const tx = await fileContract.writeChunk(hexUuid, hexName, hexIv, hexType, index, hexData, {
+      const tx = await fileContract.writeChunk(hexUuid, hexName, hexIv, hexType, chunks.length, index, hexData, {
         value: ethers.utils.parseEther(cost.toString())
       });
       console.log(`Transaction Id: ${tx.hash}`);

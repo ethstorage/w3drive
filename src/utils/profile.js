@@ -45,8 +45,18 @@ export const deleteFiles = async (contract, uuids) => {
 export const getFile = async (contract, driveKey, uuid) => {
     const fileContract = FileContract(contract);
     const fileInfo  = await fileContract.getFileInfo(uuid);
-    const isImage = hexToString(fileInfo.fileType).includes('image');
-    if (isImage) {
+    // file not upload success
+    if (fileInfo.realChunkCount.toNumber() !== fileInfo.chunkCount.toNumber()) {
+        return {
+            name: fileInfo.name,
+            time: new Date(parseInt(fileInfo.time, 10) * 1000),
+            type: fileInfo.fileType,
+            isFail: true
+        }
+    }
+
+    const fileType = hexToString(fileInfo.fileType);
+    if (fileType.includes('image')) {
         const quest = [];
         for (let i = 0; i < fileInfo.chunkCount.toNumber(); i++) {
             quest.push(fileContract.getFile(uuid, i));
@@ -67,7 +77,6 @@ export const getFile = async (contract, driveKey, uuid) => {
             data,
         }
     }
-
     return {
         name: fileInfo.name,
         time: new Date(parseInt(fileInfo.time, 10) * 1000),

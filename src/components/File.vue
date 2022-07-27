@@ -7,12 +7,19 @@
           <span class="file-title-text">{{ renderName(this.file.name) }}</span>
           <span class="file-title-time">{{ renderTimestamp(this.file.time) }}</span>
         </div>
-        <el-button round class="profile-delete-btn" @click="onDownload">Download</el-button>
+        <div>
+          <el-button round class="profile-delete-btn" @click="onDelete">Remove</el-button>
+          <el-button v-if="!this.file.isFail" round class="profile-delete-btn" @click="onDownload">Download</el-button>
+        </div>
       </div>
       <div class="divider"/>
       <!--   data   -->
-      <div class="profile-date">
-        <img v-if="this.isImage(this.file.type)" :src="'data:image/png;base64,' + arrayBufferToBase64(this.file.data)"/>
+      <div class="profile-date" v-loading="showProgress">
+        <el-col v-if="this.file.isFail">
+          <el-row><i class="el-icon-error fail-img"/></el-row>
+          <el-row><span class="fail-text">Error: The data has not been uploaded!!</span></el-row>
+        </el-col>
+        <img v-else-if="this.isImage(this.file.type)" :src="'data:image/png;base64,' + arrayBufferToBase64(this.file.data)"/>
         <update-icon v-else class="go-upload-list-item-img" name="file"/>
       </div>
     </el-card>
@@ -32,10 +39,7 @@ export default {
   name: 'File',
   data: () => {
     return {
-      name: "",
-      result: null,
-      isDelete: false,
-      checkedDeletes: []
+      showProgress: false,
     };
   },
   components: { UpdateIcon },
@@ -119,8 +123,10 @@ export default {
       if (!FileBoxController) {
         return;
       }
+      this.showProgress = true;
       const data = await downloadFile(FileBoxController, this.driveKey, this.uuid, this.file.iv, this.file.chunkCount);
       fileDownload(data, this.renderName(this.file.name));
+      this.showProgress = false;
     },
     onDelete() {
       const { FileBoxController} = this.$store.state.chainConfig;
@@ -224,18 +230,15 @@ export default {
   height: 90px;
 }
 
-.icon-loading {
-  animation: rotating 2s infinite linear;
+.fail-img {
+  font-size: 50px;
+  color: #F56C6C;
 }
-@keyframes rotating {
-  0% {
-    transform: rotate(0deg)
-  }
-  to {
-    transform: rotate(1turn)
-  }
+.fail-text {
+  font-size: 22px;
+  color: #333333;
+  margin-top: 10px;
 }
-
 @media screen and (max-width: 420px) {
   .profile-card {
     padding: 0;
