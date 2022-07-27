@@ -11,11 +11,10 @@
     <w3q-deployer v-if="driveKey" multiple :fileContract="contract" :driveKey="this.driveKey" style="width: 500px"/>
     <div v-else class="drive">
       <el-input placeholder="Input Password" v-model="input" show-password></el-input>
-      <el-button v-if="this.drive&&this.drive.uuid!=='none'" :disabled="!this.signature"
-                 type="warning" round class="home-btn" @click="openDrive">
+      <el-button v-if="drive&&drive.uuid!=='none'" type="warning" round class="home-btn" @click="openDrive">
         Enter Drive
       </el-button>
-      <el-button v-else :disabled="!this.signature" type="warning" round class="home-btn" @click="onCreateDrive">
+      <el-button v-else type="warning" round class="home-btn" @click="onCreateDrive">
         Create Drive
       </el-button>
     </div>
@@ -34,6 +33,7 @@ export default {
   data: () => {
     return {
       driveUuid: undefined,
+      signature: undefined,
       input: "",
     }
   },
@@ -64,20 +64,20 @@ export default {
       default: undefined,
       watch: ['account']
     },
-    signature: {
-      async get() {
-        if (this.account && this.drive && !this.driveKey) {
-          this.driveUuid = 'none' === this.drive.uuid ? uuidv4() : this.drive.uuid;
-          return await login(this.driveUuid);
-        }
-        return undefined;
-      },
-      default: undefined,
-      watch: ['drive']
+  },
+  watch: {
+    drive: async function () {
+      await this.signatureLogin();
     }
   },
   methods: {
     ...mapActions(["setDriveKey"]),
+    async signatureLogin() {
+      if (this.drive && !this.driveKey) {
+        this.driveUuid = 'none' === this.drive.uuid ? uuidv4() : this.drive.uuid;
+        this.signature = await login(this.driveUuid, this.account);
+      }
+    },
     async onCreateDrive() {
       const password = this.input;
       if (!password) {
@@ -85,9 +85,17 @@ export default {
         return;
       }
 
+      if (!this.signature) {
+        await this.signatureLogin();
+        if (!this.signature) {
+          this.$message.error('Failed to create drive');
+        }
+      }
+
       const driveKey = await createDrive(this.contract, this.driveUuid, this.signature, password);
       if (driveKey) {
         this.setDriveKey(driveKey);
+        sessionStorage.setItem(this.account, driveKey);
         this.$notify({title: 'Transaction', message: "Create Drive Success", type: 'success'});
       } else {
         this.$message.error('Failed to create drive');
@@ -99,9 +107,18 @@ export default {
         this.$message.error('Password Error');
         return;
       }
+
+      if (!this.signature) {
+        await this.signatureLogin();
+        if (!this.signature) {
+          this.$message.error('Failed to open drive');
+        }
+      }
+
       const driveKey = await encryptDrive(this.signature, password, this.drive.iv, this.drive.encrypt);
       if (driveKey) {
         this.setDriveKey(driveKey);
+        sessionStorage.setItem(this.account, driveKey);
       } else {
         this.$message.error('Password Error');
       }

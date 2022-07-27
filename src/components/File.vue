@@ -56,7 +56,7 @@ export default {
       this.goHome();
     }
   },
-  created() {
+  mounted() {
     if(!this.driveKey){
       this.goHome();
     }

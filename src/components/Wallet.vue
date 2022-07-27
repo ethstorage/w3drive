@@ -8,12 +8,12 @@
       Connect
     </button>
     <div v-else class="user">
+      <div v-if="this.driveKey" class="favorite" @click.stop="goProfile"/>
       <div class="account">
         {{ this.accountShort }}
         &nbsp;|&nbsp;
         {{ this.networkId === 3334 ? "Galileo Testnet": "Mainnet" }}
       </div>
-      <div v-if="this.driveKey" class="favorite" @click.stop="goProfile"/>
     </div>
   </div>
 </template>
@@ -85,16 +85,6 @@ export default {
       }
     },
     async handleAccountsChanged(accounts) {
-      // chain
-      const newChainId = await window.ethereum.request({ method: "eth_chainId" });
-      if (chainID !== newChainId) {
-        //  not support chain
-        this.setChainConfig({});
-      } else {
-        const c = chains.find((v) => v.chainID === chainID);
-        this.setChainConfig(JSON.parse(JSON.stringify(c)));
-      }
-
       // account
       if (accounts.length === 0) {
         this.currentAccount = null;
@@ -104,22 +94,40 @@ export default {
         );
         return;
       }
-      if (chainID !== newChainId) {
-        this.currentAccount = null;
-        this.setAccount(null);
-        throw new UnsupportedChainIdError();
-      }
-
       if (accounts[0] !== this.currentAccount) {
+        // drive key clear
+        sessionStorage.setItem(this.currentAccount, '');
+        sessionStorage.setItem(accounts[0], '');
         this.currentAccount = accounts[0];
         this.setAccount(accounts[0]);
       }
-      this.setDriveKey('');
+    },
+    async handleAccount(accounts) {
+      // account
+      if (accounts.length === 0) {
+        console.warn( "MetaMask is locked or the user has not connected any accounts");
+        return;
+      }
+      // chain
+      const newChainId = await window.ethereum.request({ method: "eth_chainId" });
+      if (chainID !== newChainId) {
+        throw new UnsupportedChainIdError();
+      }
+
+      const driveKey = sessionStorage.getItem(accounts[0]);
+      if (driveKey) {
+        this.setDriveKey(driveKey);
+      }
+
+      const c = chains.find((v) => v.chainID === chainID);
+      this.setChainConfig(JSON.parse(JSON.stringify(c)));
+      this.currentAccount = accounts[0];
+      this.setAccount(accounts[0]);
     },
     async login() {
       window.ethereum
           .request({ method: "eth_requestAccounts" })
-          .then(this.handleAccountsChanged)
+          .then(this.handleAccount)
           .catch(async (error) => {
             if (error.code === 4001) {
               this.$message.error('User rejected');
@@ -134,37 +142,31 @@ export default {
           });
     },
     async setupNetwork() {
-      const provider = window.ethereum;
-      if (provider) {
-        try {
-          await provider.request({
-            method: 'wallet_addEthereumChain',
-            params: [
-              {
-                chainId: chainID,
-                chainName: 'Web3Q Galileo',
-                nativeCurrency: {
-                  name: 'W3Q',
-                  symbol: 'W3Q',
-                  decimals: 18,
-                },
-                rpcUrls: nodes,
-                blockExplorerUrls: explorers,
+      try {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainId: chainID,
+              chainName: 'Web3Q Galileo',
+              nativeCurrency: {
+                name: 'W3Q',
+                symbol: 'W3Q',
+                decimals: 18,
               },
-            ],
-          })
-          const newChainId = await window.ethereum.request({method: "eth_chainId"});
-          if (chainID !== newChainId) {
-            this.$message.error('User rejected');
-            return false;
-          }
-          return true;
-        } catch (error) {
-          this.$message.error('Failed to setup the network in Metamask');
-          return false
+              rpcUrls: nodes,
+              blockExplorerUrls: explorers,
+            },
+          ],
+        })
+        const newChainId = await window.ethereum.request({method: "eth_chainId"});
+        if (chainID !== newChainId) {
+          this.$message.error('User rejected');
+          return false;
         }
-      } else {
-        this.$message.error('Can\'t setup the Web3Q network on metamask because window.ethereum is undefined');
+        return true;
+      } catch (error) {
+        this.$message.error('Failed to setup the network in Metamask');
         return false
       }
     },
@@ -200,7 +202,7 @@ export default {
   cursor: pointer;
   height: 38px;
   width: 38px;
-  margin-left: 10px;
+  margin-right: 10px;
   padding: 0;
   background-image: url("../assets/user.png");
   background-repeat:no-repeat;

@@ -15,10 +15,14 @@ export const getDrive = async (controller) => {
     }
 }
 
-export const login = async (driveId) =>{
+export const login = async (driveId, address) =>{
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    return await signer.signMessage("Login\n\nDriveId: " + driveId + "\n\nMessage: Login to w3drive and sign.");
+    try {
+        return await signer.signMessage("Login to w3drive and sign\n\nAddress: " + address + "\n\nDriveId: " + driveId);
+    } catch (e) {
+        return undefined;
+    }
 }
 
 export const createDrive = async (controller, driveId, signature, password) => {
