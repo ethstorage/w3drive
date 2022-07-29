@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <p class="title">
-      WELCOME TO
+      WELCOME TO W3DRIVE
     </p>
     <p class="message">
       Your private and secure, decentralized, pay-as-you-go,<br/>
@@ -75,7 +75,7 @@ export default {
     async signatureLogin() {
       if (this.drive && !this.driveKey) {
         this.driveUuid = 'none' === this.drive.uuid ? uuidv4() : this.drive.uuid;
-        this.signature = await login(this.driveUuid, this.account);
+        this.signature = await login(this.driveUuid, this.account, 3334);
       }
     },
     async onCreateDrive() {
