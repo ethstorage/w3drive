@@ -257,33 +257,33 @@ export default {
 }
 
 .profile-btn {
-  background-color: #52DEFF;
+  background-color: #6E529C;
   margin-top: 15px;
   font-size: 18px;
   border: 0;
 }
 .profile-btn:focus,
 .profile-btn:hover {
-  background-color: #52DEFFBB;
+  background-color: #6E529CBB;
 }
 
 .profile-delete {
-  color: #52DEFF;
+  color: #6E529C;
   font-size: 16px;
 }
 .profile-delete:focus,
 .profile-delete:hover {
-  color: #52DEFF;
+  color: #6E529C;
 }
 .profile-delete-btn {
-  background-color: #52DEFF;
+  background-color: #6E529C;
   font-size: 16px;
   border: 0;
   color: #ffffff;
 }
 .profile-delete-btn:focus,
 .profile-delete-btn:hover {
-  background-color: #52DEFFBB;
+  background-color: #6E529CBB;
   color: #ffffff;
 }
 

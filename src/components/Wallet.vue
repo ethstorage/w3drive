@@ -204,6 +204,7 @@ export default {
   width: 38px;
   margin-right: 10px;
   padding: 0;
+  color: #6E529C;
   background-image: url("../assets/user.png");
   background-repeat:no-repeat;
   background-size:100% 100%;
@@ -217,12 +218,12 @@ export default {
   color: #ffffff;
   font-size: 18px;
   border: 0;
-  background: #52DEFF;
+  background: #6E529C;
   border-radius: 36px;
   cursor: pointer;
 }
 .btn-connect:hover {
-  background-color: #52DEFF90;
+  background-color: #6E529CBB;
   border: 0;
 }
 </style>

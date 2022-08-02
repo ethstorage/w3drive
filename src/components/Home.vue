@@ -1,11 +1,8 @@
 <template>
   <div class="home">
-    <p class="title">
-      WELCOME TO W3DRIVE
-    </p>
+    <img class="home-logo" src="../assets/home.png"/>
     <p class="message">
-      Your private and secure, decentralized, pay-as-you-go,<br/>
-      censorship-resistant and permanent hard drive.
+      Your Private Hard Drive on Blockchain
     </p>
 
     <w3q-deployer v-if="driveKey" multiple :fileContract="contract" :driveKey="this.driveKey" style="width: 500px"/>
@@ -135,37 +132,33 @@ export default {
   align-items: center;
 }
 
-.title {
-  font-size: 60px;
-  color: indianred;
-  line-height: 50px;
-  margin-top: 60px;
+.home-logo {
+  margin-top: 35px;
 }
 
 .message {
   font-size: 23px;
   color: #333333;
-  line-height: 30px;
-  margin-bottom: 50px;
-  margin-top: 30px;
+  margin-bottom: 35px;
+  margin-top: 35px;
 }
 
 .drive{
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 10px;
 }
 
 .home-btn {
-  background-color: #52DEFF;
+  background-color: #6E529C;
   margin-top: 20px;
   font-size: 18px;
   border: 0;
 }
 .home-btn:focus,
 .home-btn:hover {
-  background-color: #52DEFFBB;
+  background-color: #6E529CBB;
 }
 .home-btn:disabled:hover,
 .home-btn:disabled {
