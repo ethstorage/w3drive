@@ -88,7 +88,7 @@ export const fileEncrypt = async (fileKey, data) => {
 ```
 
 #### Download
-First derive the secret key of the file from root key and file id. Next, extract all the chunk data of the file from 
+First derive the secret key of the file from the root key and file id. Next, extract all the chunk data of the file from 
 the contract. Finally, the spliced data is decrypted using the file key.
 ```
 const authTagLength = 16;
@@ -110,7 +110,7 @@ export async function fileDecrypt(fileKey, iv, data) {
 <br>
 
 ### SimpleW3Drive
-SimpleW3Drive is used to manage user uploaded files.
+SimpleW3Drive is used to manage user-uploaded files.
 
 #### Storage structure
 ```
@@ -131,7 +131,7 @@ function createDrive(bytes memory uuid, bytes memory driveEncrypt) public {
 }
 ```
 
-#### Upload files
+#### Upload
 ```
 function writeChunk(
     bytes memory uuid, 
@@ -157,7 +157,7 @@ function writeChunk(
 }
 ```
 
-#### Read file information
+#### Read
 ```
 function getFileInfos()
     public
@@ -192,8 +192,8 @@ function getFile(bytes memory uuid, uint256 chunkId) public view returns(bytes m
 ```
 
 #### File Name
-Files are saved and read by name. Adding the user address before the file name can avoid
-the probability of duplicate names, and file name format is address/file name.
+Files are saved and read by name. Adding the user address before the file name can avoid 
+the probability of duplicate names, and the file name format is address/file name.
 ```
 function getNewName(address author,bytes memory name) public pure returns (bytes memory) {
     return abi.encodePacked(Strings.toHexString(uint256(uint160(author)), 20),'/',name);
