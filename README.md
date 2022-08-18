@@ -17,8 +17,8 @@ the contract is a FlatDirectory contract that stores w3drive's website files.
 
 FlatDirectory is the implementation of the web3 storage data contract. Click [here](https://docs.web3q.io/tutorials/migrate-your-website-to-web3q-in-5-mins) for details.
 
-#### privateKey seed
-Sign the user address, drive id, network id, etc. to get the signature information, and use the signature as a private key seed.
+#### Secret key seed
+Sign the user address, drive id, network id, etc. to get the signature information, and use the signature as a secret key seed.
 ```
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
@@ -32,7 +32,7 @@ return await signer.signMessage(message);
 ```
 
 #### Register
-Use the "hkdf" function to derive the 32-bit root private key. Encrypt user drive id with root key, 
+Use the "hkdf" function to derive the 32-bit root secret key. Encrypt user drive id with root key, 
 and store the encrypted data and drive id on the chain.
 ```
 import hkdf from 'futoin-hkdf';
