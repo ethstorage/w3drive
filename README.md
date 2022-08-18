@@ -9,7 +9,7 @@ The official home page of the W3Drive project is https://web3q.io/w3drive.w3q/.
 
 ## Structure
 The front-end code of this project and all the data are stored on the blockchain to achieve full decentralization of the website. 
-The project is implemented by two contracts, the front-end contract w3drive.w3q and the business logic contract SimpleW3Drive.
+The project is implemented by two contracts, the front-end contract w3drive.w3q and the function contract SimpleW3Drive.
 
 ### w3drive.w3q
 [w3drive.w3q](https://web3q.io/w3ns.w3q/#/domains/w3drive.w3q) is a w3ns domain name, which maps a contract address, 
