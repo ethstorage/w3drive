@@ -1,7 +1,8 @@
 # W3Drive
 
 ## Introduction
-Based on the Web3Q chain, this project implements a decentralized website. Anyone can upload private files without permission, and the files can only be viewed by the uploader. If the uploaded file exceeds 24kb, the uploader needs to stake w3q tokens according to the file size. Only the uploader can delete uploaded files.
+Based on the Web3Q chain, this project implements a decentralized website. Anyone can upload personal files without permission,
+files are viewed and deleted by the uploader. If the uploaded file exceeds 24kb, the uploader needs to stake w3q tokens according to the file size.
    
 The official home page of the W3Box project is https://web3q.io/w3drive.w3q/.
 
