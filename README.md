@@ -1,8 +1,9 @@
 # W3Drive
 
 ## Introduction
-Based on the Web3Q chain, this project implements a decentralized website. Anyone can upload personal files without permission,
-files are viewed and deleted by the uploader. If the uploaded file exceeds 24kb, the uploader needs to stake w3q tokens according to the file size.
+W3Drive is an encrypted network hard disk based on the Web3Q chain. This network disk realizes that anyone can upload files without permission. 
+The uploaded files will be encrypted to ensure that only the uploader can view and delete them. 
+If the uploaded file exceeds 24kb, the uploader needs to stake w3q tokens according to the file size.
    
 The official home page of the W3Drive project is https://web3q.io/w3drive.w3q/.
 
@@ -16,6 +17,9 @@ The project is implemented by two contracts, the front-end contract w3drive.w3q 
 the contract is a FlatDirectory contract that stores w3drive's website files.
 
 FlatDirectory is the implementation of the web3 storage data contract. Click [here](https://docs.web3q.io/tutorials/migrate-your-website-to-web3q-in-5-mins) for details.
+
+The flow chart is as follows:
+![](https://github.com/QuarkChain/w3drive/public/flowchart.png)
 
 #### Secret key seed
 Sign the user address, drive id, network id, etc. to get the signature information, and use the signature as a secret key seed.
