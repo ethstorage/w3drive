@@ -19,7 +19,7 @@ the contract is a FlatDirectory contract that stores w3drive's website files.
 FlatDirectory is the implementation of the web3 storage data contract. Click [here](https://docs.web3q.io/tutorials/migrate-your-website-to-web3q-in-5-mins) for details.
 
 The flow chart is as follows:
-![](https://github.com/QuarkChain/w3drive/public/flowchart.png)
+![](public/flowchart.jpg)
 
 #### Secret key seed
 Sign the user address, drive id, network id, etc. to get the signature information, and use the signature as a secret key seed.
