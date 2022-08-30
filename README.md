@@ -8,7 +8,7 @@ W3Drive can be visited here: https://web3q.io/w3drive.w3q/.
 
 
 ## How does it work
-W3Mail is a fully decentralized dApp which means the front-end code, back-end (smart contract) code and users' files are all stored on chain. The front-end contract is w3drive.w3q and the backend contract is SimpleW3Drive.
+W3Mail is a fully decentralized dApp which means the front-end code, back-end (smart contract) code, and users' files are all stored on the chain. The front-end contract is w3drive.w3q and the backend contract is SimpleW3Drive.
 
 ### w3drive.w3q
 [w3drive.w3q](https://web3q.io/w3ns.w3q/#/domains/w3drive.w3q) is a w3ns domain name, which maps a contract address, 
