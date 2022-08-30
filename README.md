@@ -16,7 +16,7 @@ the contract is a FlatDirectory contract that stores w3drive's website files.
 
 FlatDirectory is the implementation of the web3 storage data contract. Click [here](https://docs.web3q.io/tutorials/migrate-your-website-to-web3q-in-5-mins) for details.
 
-The flow chart is as follows:
+The flow chart is as follows:  
 ![](public/flowchart.jpg)
 
 #### Secret key seed
