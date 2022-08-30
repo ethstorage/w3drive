@@ -35,7 +35,7 @@ return await signer.signMessage(message);
 
 #### Register
 Use the "hkdf" function to derive the 32-bit root secret key. Encrypt user drive id with root key, 
-and store the encrypted data and drive id on chain.
+and store the encrypted data and drive id on the chain.
 ```
 import hkdf from 'futoin-hkdf';
 const keyByteLength = 32;
