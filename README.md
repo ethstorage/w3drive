@@ -1,16 +1,14 @@
 # W3Drive
 
 ## Introduction
-W3Drive is an encrypted network hard disk based on the Web3Q chain. This network disk realizes that anyone can upload files without permission. 
-The uploaded files will be encrypted to ensure that only the uploader can view and delete them. 
-If the uploaded file exceeds 24kb, the uploader needs to stake w3q tokens according to the file size.
+W3Drive is a decentralized personal file storage service based on the Web3Q chain. Anyone can store their files safely and permissionless. 
+The uploaded files will be encrypted to ensure that only the owner can view and delete them. 
    
-The official home page of the W3Drive project is https://web3q.io/w3drive.w3q/.
+W3Drive can be visited here: https://web3q.io/w3drive.w3q/.
 
 
-## Structure
-The front-end code of this project and all the data are stored on the blockchain to achieve full decentralization of the website. 
-The project is implemented by two contracts, the front-end contract w3drive.w3q and the function contract SimpleW3Drive.
+## How does it work
+W3Mail is a fully decentralized dApp which means the front-end code, back-end (smart contract) code and users' files are all stored on chain. The front-end contract is w3drive.w3q and the backend contract is SimpleW3Drive.
 
 ### w3drive.w3q
 [w3drive.w3q](https://web3q.io/w3ns.w3q/#/domains/w3drive.w3q) is a w3ns domain name, which maps a contract address, 
@@ -22,7 +20,7 @@ The flow chart is as follows:
 ![](public/flowchart.jpg)
 
 #### Secret key seed
-Sign the user address, drive id, network id, etc. to get the signature information, and use the signature as a secret key seed.
+Every user's file is encrypted by a unique AES256 key, and all those keys are derived from one root secret key. This root secret key is determined by a secret key seed which is a signature signed by the user's wallet using some user-related info (user address, drive id, network id, etc).
 ```
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
@@ -37,7 +35,7 @@ return await signer.signMessage(message);
 
 #### Register
 Use the "hkdf" function to derive the 32-bit root secret key. Encrypt user drive id with root key, 
-and store the encrypted data and drive id on the chain.
+and store the encrypted data and drive id on chain.
 ```
 import hkdf from 'futoin-hkdf';
 const keyByteLength = 32;
@@ -93,8 +91,8 @@ export const fileEncrypt = async (fileKey, data) => {
 ```
 
 #### Download
-First derive the secret key of the file from the root key and file id. Next, extract all the chunk data of the file from 
-the contract. Finally, the spliced data is decrypted using the file key.
+First derive the secret key of the file from the root key and file id. Then extract all the chunk data of the file from 
+the contract. In the end, decrypt the data using the file key.
 ```
 const authTagLength = 16;
 export async function fileDecrypt(fileKey, iv, data) {
@@ -197,8 +195,7 @@ function getFile(bytes memory uuid, uint256 chunkId) public view returns(bytes m
 ```
 
 #### File Name
-Files are saved and read by name. Adding the user address before the file name can avoid 
-the probability of duplicate names, and the file name format is address/file name.
+Files are saved and read by name. Adding the user address before the file name can avoid duplicate names, and the file name format is address/fileName.
 ```
 function getNewName(address author,bytes memory name) public pure returns (bytes memory) {
     return abi.encodePacked(Strings.toHexString(uint256(uint160(author)), 20),'/',name);
