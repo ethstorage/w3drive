@@ -25,7 +25,6 @@ const routes = [
 ];
 
 const router = new VueRouter({
-  base: '/w3drive.w3q/',
   routes,
 });
 

@@ -8,6 +8,6 @@ module.exports = {
     }
   },
   productionSourceMap: false,
-  publicPath: '/w3drive.w3q/',
+  publicPath: '/',
   runtimeCompiler: true,
 };
