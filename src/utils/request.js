@@ -36,7 +36,7 @@ const bufferChunk = (buffer, chunkSize) => {
   return result;
 }
 
-const request = async ({
+export const request = async ({
   driveKey,
   contractAddress,
   dirPath,
@@ -90,6 +90,7 @@ const request = async ({
 
   const fileContract = FileContract(contractAddress);
   let uploadState = true;
+  let notEnoughBalance = false;
   for (const index in chunks) {
     const chunk = chunks[index];
     let cost = 0;
@@ -98,6 +99,14 @@ const request = async ({
     }
     const hexData = '0x' + chunk.toString('hex');
     try {
+      const balance = await fileContract.provider.getBalance(account[0]);
+      if(balance.lte(ethers.utils.parseEther(cost.toString()))){
+        // not enough balance
+        uploadState = false;
+        notEnoughBalance = true;
+        break;
+      }
+
       // file is remove or change
       const tx = await fileContract.writeChunk(hexUuid, hexName, hexIv, hexType, chunks.length, index, hexData, {
         value: ethers.utils.parseEther(cost.toString())
@@ -122,8 +131,12 @@ const request = async ({
     }
     onSuccess({ uuid: uuid});
   } else {
-    onError(new Error('upload request failed!'));
+    if (notEnoughBalance) {
+      onError(new NotEnoughBalance('Not enough balance'));
+    } else {
+      onError(new Error('upload request failed!'));
+    }
   }
 };
 
-export default request;
+export class NotEnoughBalance extends Error {}

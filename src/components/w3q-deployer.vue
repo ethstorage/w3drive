@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import request from '@/utils/request';
+import {request, NotEnoughBalance} from '@/utils/request';
 import UploadList from './upload-list';
 import UploadDragger from './upload-dragger';
 const copy = require('clipboard-copy')
@@ -186,6 +186,12 @@ export default {
       delete this.reqs[uid];
       file.status = 'failure';
       this.onError(error, file, this.files);
+      if (error instanceof NotEnoughBalance) {
+        this.$notify.error({
+          title: 'Not enough balance!',
+          message: 'File >=24kb requires staking token.'
+        });
+      }
     },
     handleSuccess(file, response) {
       const { uid } = file;
