@@ -5,7 +5,7 @@
       Your Private Hard Drive on Blockchain
     </p>
 
-    <w3q-deployer v-if="driveKey" multiple :fileContract="contract" :driveKey="this.driveKey" style="width: 500px"/>
+    <w3q-deployer v-if="driveKey" multiple :fileContract="contract" :driveKey="this.driveKey" :account="this.account" class="deploy"/>
     <div v-else class="drive">
       <el-input placeholder="Input Password" v-model="input" show-password></el-input>
       <el-button v-if="drive&&drive.uuid!=='none'" type="warning" round class="home-btn" @click="openDrive">
@@ -163,5 +163,23 @@ export default {
 .home-btn:disabled:hover,
 .home-btn:disabled {
   background-color: #cccccc;
+}
+
+.deploy {
+  width: 500px;
+}
+
+@media screen and (max-width: 500px) {
+  .home-logo {
+    width: 65%;
+  }
+
+  .message {
+    font-size: 18px;
+  }
+
+  .deploy {
+    width: 98%;
+  }
 }
 </style>

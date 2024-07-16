@@ -36,32 +36,16 @@ const bufferChunk = (buffer, chunkSize) => {
   return result;
 }
 
-const request = async ({
+export const request = async ({
+  chunkLength,
+  account,
   driveKey,
   contractAddress,
-  dirPath,
   file,
   onSuccess,
   onError,
   onProgress
 }) => {
-  if (!window.ethereum) {
-    onError(new Error("Can't find metamask"));
-    return;
-  }
-  let account;
-  try {
-    account = await window.ethereum.enable();
-    if (!account) {
-      onError(new Error("Can't get Account"));
-      return;
-    }
-  } catch (e) {
-    onError(new Error("Can't get Account"));
-    return;
-  }
-  console.log(dirPath);
-
   // read file
   const rawFile = file.raw;
   const data = await readFile(rawFile);
@@ -74,8 +58,8 @@ const request = async ({
   // Data need to be sliced if file > 475K
   let fileSize = content.length;
   let chunks = [];
-  if (fileSize > 475 * 1024) {
-    const chunkSize = Math.ceil(fileSize / (475 * 1024));
+  if (fileSize > chunkLength) {
+    const chunkSize = Math.ceil(fileSize / chunkLength);
     chunks = bufferChunk(content, chunkSize);
     fileSize = fileSize / chunkSize;
   } else {
@@ -90,6 +74,7 @@ const request = async ({
 
   const fileContract = FileContract(contractAddress);
   let uploadState = true;
+  let notEnoughBalance = false;
   for (const index in chunks) {
     const chunk = chunks[index];
     let cost = 0;
@@ -98,6 +83,14 @@ const request = async ({
     }
     const hexData = '0x' + chunk.toString('hex');
     try {
+      const balance = await fileContract.provider.getBalance(account);
+      if(balance.lte(ethers.utils.parseEther(cost.toString()))){
+        // not enough balance
+        uploadState = false;
+        notEnoughBalance = true;
+        break;
+      }
+
       // file is remove or change
       const tx = await fileContract.writeChunk(hexUuid, hexName, hexIv, hexType, chunks.length, index, hexData, {
         value: ethers.utils.parseEther(cost.toString())
@@ -122,8 +115,12 @@ const request = async ({
     }
     onSuccess({ uuid: uuid});
   } else {
-    onError(new Error('upload request failed!'));
+    if (notEnoughBalance) {
+      onError(new NotEnoughBalance('Not enough balance'));
+    } else {
+      onError(new Error('upload request failed!'));
+    }
   }
 };
 
-export default request;
+export class NotEnoughBalance extends Error {}
