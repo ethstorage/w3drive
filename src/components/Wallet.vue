@@ -28,8 +28,8 @@ export class UnsupportedChainIdError extends Error {
 
 const chain = 43069;
 const chainID = `0x${chain.toString(16)}`;
-const nodes = ['http://65.109.20.29:8545']
-const explorers = [`http://65.109.20.29/`];
+const nodes = ['https://rpc.testnet.l2.quarkchain.io:8545']
+const explorers = [`https://explorer.testnet.l2.quarkchain.io/`];
 
 export default {
   name: "Wallet",
@@ -63,7 +63,7 @@ export default {
     ...mapActions(["setChainConfig", "setAccount", "setDriveKey"]),
     connectWallet() {
       if (!window.ethereum) {
-        this.$message.error('Can\'t setup the Web3Q network on metamask because window.ethereum is undefined');
+        this.$message.error('Can\'t setup the QuarkChain L2 Testnet on metamask because window.ethereum is undefined');
         return;
       }
       this.login();
@@ -146,10 +146,10 @@ export default {
           params: [
             {
               chainId: chainID,
-              chainName: 'Web3Q Galileo',
+              chainName: 'QuarkChain L2 Testnet',
               nativeCurrency: {
-                name: 'W3Q',
-                symbol: 'W3Q',
+                name: 'QKC',
+                symbol: 'QKC',
                 decimals: 18,
               },
               rpcUrls: nodes,
