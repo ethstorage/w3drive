@@ -19,7 +19,7 @@
           <el-row><i class="el-icon-error fail-img"/></el-row>
           <el-row><span class="fail-text">Error: The data has not been uploaded!!</span></el-row>
         </el-col>
-        <img v-else-if="this.isImage(this.file.type)" :src="'data:image/png;base64,' + arrayBufferToBase64(this.file.data)"/>
+        <img v-else-if="this.isImage(this.file.type)" :src="base64Image(this.file.type, this.file.data)"/>
         <update-icon v-else class="go-upload-list-item-img" name="file"/>
       </div>
     </el-card>
@@ -67,7 +67,7 @@ export default {
         if (!this.uuid) {
           return 'none';
         }
-        const { FileBoxController} = this.$store.state.chainConfig;
+        const {FileBoxController} = this.$store.state.chainConfig;
         if (!FileBoxController) {
           return "none";
         }
@@ -104,6 +104,10 @@ export default {
         binary += String.fromCharCode(bytes[i]);
       }
       return window.btoa(binary);
+    },
+    base64Image(type, data) {
+      type = hexToString(type);
+      return 'data:' + type + ';base64,' + this.arrayBufferToBase64(data);
     },
     goHome() {
       this.$router.push({path: "/"});

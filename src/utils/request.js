@@ -38,7 +38,6 @@ const bufferChunk = (buffer, chunkSize) => {
 
 export const request = async ({
   chunkLength,
-  account,
   driveKey,
   contractAddress,
   file,
@@ -49,6 +48,7 @@ export const request = async ({
   // read file
   const rawFile = file.raw;
   const data = await readFile(rawFile);
+
   // encrypt file
   const uuid = uuidv4();
   const encryptResult = await createFileEncrypt(driveKey, uuid, data);
@@ -61,7 +61,6 @@ export const request = async ({
   if (fileSize > chunkLength) {
     const chunkSize = Math.ceil(fileSize / chunkLength);
     chunks = bufferChunk(content, chunkSize);
-    fileSize = fileSize / chunkSize;
   } else {
     chunks.push(content);
   }
@@ -74,27 +73,12 @@ export const request = async ({
 
   const fileContract = FileContract(contractAddress);
   let uploadState = true;
-  let notEnoughBalance = false;
   for (const index in chunks) {
     const chunk = chunks[index];
-    let cost = 0;
-    if (fileSize > 24 * 1024 - 326) {
-      cost = Math.floor((fileSize + 326) / 1024 / 24);
-    }
     const hexData = '0x' + chunk.toString('hex');
     try {
-      const balance = await fileContract.provider.getBalance(account);
-      if(balance.lte(ethers.utils.parseEther(cost.toString()))){
-        // not enough balance
-        uploadState = false;
-        notEnoughBalance = true;
-        break;
-      }
-
       // file is remove or change
-      const tx = await fileContract.writeChunk(hexUuid, hexName, hexIv, hexType, chunks.length, index, hexData, {
-        value: ethers.utils.parseEther(cost.toString())
-      });
+      const tx = await fileContract.writeChunk(hexUuid, hexName, hexIv, hexType, chunks.length, index, hexData);
       console.log(`Transaction Id: ${tx.hash}`);
       const receipt = await tx.wait();
       if (!receipt.status) {
@@ -115,12 +99,6 @@ export const request = async ({
     }
     onSuccess({ uuid: uuid});
   } else {
-    if (notEnoughBalance) {
-      onError(new NotEnoughBalance('Not enough balance'));
-    } else {
-      onError(new Error('upload request failed!'));
-    }
+    onError(new Error('upload request failed!'));
   }
 };
-
-export class NotEnoughBalance extends Error {}

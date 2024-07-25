@@ -5,12 +5,9 @@ import {deriveDriveKey, deriveFileKey, fileEncrypt, driveEncrypt, driveDecrypt, 
 const stringToHex = (s) => ethers.utils.hexlify(ethers.utils.toUtf8Bytes(s));
 const hexToString = (h) => ethers.utils.toUtf8String(h);
 
-const domain = window.location.host;
-const origin = window.location.origin;
-
 function createSiweMessage(address, driveId, networkId, statement) {
-    return `${domain} wants you to sign in with your Ethereum account:
-        \n${address}\n\n${statement}\n\nURI: ${origin}\nVersion: 1\nChain ID: ${networkId}\nNonce: ${driveId}`;
+    return `w3-drive.eth wants you to sign in with your Ethereum account:
+        \n${address}\n\n${statement}\n\nURI: https://w3-drive.w3eth.io/\nVersion: 1\nChain ID: ${networkId}\nNonce: ${driveId}`;
 }
 
 export const getDrive = async (controller) => {

@@ -79,8 +79,7 @@ export default {
       return this.fileContract !== null;
     },
     chunkLength() {
-      return (window.ethereum && window.ethereum.isTrust)
-          ? 24 * 1024 : 475 * 1024;
+      return 24 * 1024;
     }
   },
   methods: {
@@ -153,7 +152,6 @@ export default {
       const { uid } = file;
       this.reqs[uid] = {
         chunkLength: this.chunkLength,
-        account: this.account,
         driveKey: this.driveKey,
         contractAddress: this.fileContract,
         dirPath: this.dirPath,

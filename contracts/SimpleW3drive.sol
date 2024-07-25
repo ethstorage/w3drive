@@ -34,8 +34,8 @@ contract SimpleW3drive {
     FlatDirectory public fileFD;
     mapping(address => FilesInfo) fileInfos;
 
-    constructor() {
-        fileFD = new FlatDirectory(0);
+    constructor(address _ethStorage) {
+        fileFD = new FlatDirectory(0, 0, _ethStorage);
     }
 
     receive() external payable {}

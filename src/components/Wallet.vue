@@ -10,9 +10,7 @@
     <div v-else class="user">
       <div v-if="this.driveKey" class="favorite" @click.stop="goProfile"/>
       <div class="account">
-        {{ this.accountShort }}
-        &nbsp;|&nbsp;
-        {{ this.networkId === 3334 ? "Galileo Testnet": "Mainnet" }}
+        {{ this.accountShort }}&nbsp;|&nbsp;QuarkChain L2 Testnet
       </div>
     </div>
   </div>
@@ -28,10 +26,10 @@ export class UnsupportedChainIdError extends Error {
   }
 }
 
-const chain = 3334;
+const chain = 43069;
 const chainID = `0x${chain.toString(16)}`;
-const nodes = ['https://galileo.web3q.io:8545']
-const explorers = [`https://explorer.galileo.web3q.io/`];
+const nodes = ['http://65.109.20.29:8545']
+const explorers = [`http://65.109.20.29/`];
 
 export default {
   name: "Wallet",
