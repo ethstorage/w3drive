@@ -72,7 +72,7 @@ export default {
     async signatureLogin() {
       if (this.drive && !this.driveKey) {
         this.driveUuid = 'none' === this.drive.uuid ? uuidv4() : this.drive.uuid;
-        this.signature = await login(this.driveUuid, this.account, 43069);
+        this.signature = await login(this.driveUuid, this.account, 3335);
       }
     },
     async onCreateDrive() {
