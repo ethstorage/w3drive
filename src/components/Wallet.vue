@@ -10,7 +10,7 @@
     <div v-else class="user">
       <div v-if="this.driveKey" class="favorite" @click.stop="goProfile"/>
       <div class="account">
-        {{ this.accountShort }}&nbsp;|&nbsp;QuarkChain L2 Testnet
+        {{ this.accountShort }}&nbsp;|&nbsp;Sepolia Network
       </div>
     </div>
   </div>
@@ -20,16 +20,8 @@
 import { mapActions } from "vuex";
 import { chains } from '@/store/state';
 
-export class UnsupportedChainIdError extends Error {
-  constructor() {
-    super('UnsupportedChainIdError: not support chain')
-  }
-}
-
-const chain = 3335;
-const chainID = `0x${chain.toString(16)}`;
-const nodes = ['https://rpc.beta.testnet.l2.quarkchain.io:8545']
-const explorers = [`https://explorer.beta.testnet.l2.quarkchain.io/`];
+const chain = 11155111;
+const CHAIN_ID = `0x${chain.toString(16)}`;
 
 export default {
   name: "Wallet",
@@ -63,19 +55,19 @@ export default {
     ...mapActions(["setChainConfig", "setAccount", "setDriveKey"]),
     connectWallet() {
       if (!window.ethereum) {
-        this.$message.error('Can\'t setup the QuarkChain L2 Testnet on metamask because window.ethereum is undefined');
+        this.$message.error('Can\'t setup network on metamask because window.ethereum is undefined');
         return;
       }
       this.login();
     },
     async handleChainChanged() {
       const newChainId = await window.ethereum.request({ method: "eth_chainId" });
-      if (chainID !== newChainId) {
+      if (CHAIN_ID !== newChainId) {
         this.currentAccount = null;
         this.setAccount(null);
         this.setChainConfig({});
       } else {
-        const c = chains.find((v) => v.chainID === chainID);
+        const c = chains.find((v) => v.chainID === CHAIN_ID);
         this.setChainConfig(JSON.parse(JSON.stringify(c)));
         if (!this.currentAccount) {
           await this.login();
@@ -107,66 +99,60 @@ export default {
         return;
       }
       // chain
-      const newChainId = await window.ethereum.request({ method: "eth_chainId" });
-      if (chainID !== newChainId) {
-        throw new UnsupportedChainIdError();
-      }
-
       const driveKey = sessionStorage.getItem(accounts[0]);
       if (driveKey) {
         this.setDriveKey(driveKey);
       }
 
-      const c = chains.find((v) => v.chainID === chainID);
+      const c = chains.find((v) => v.chainID === CHAIN_ID);
       this.setChainConfig(JSON.parse(JSON.stringify(c)));
       this.currentAccount = accounts[0];
       this.setAccount(accounts[0]);
     },
     async login() {
-      window.ethereum
-          .request({ method: "eth_requestAccounts" })
-          .then(this.handleAccount)
-          .catch(async (error) => {
-            if (error.code === 4001) {
-              this.$message.error('User rejected');
-            } else if (error instanceof UnsupportedChainIdError) {
-              const hasSetup = await this.setupNetwork();
-              if (hasSetup) {
-                await this.login();
-              }
-            } else {
-              this.$message.error('Connect Error');
-            }
-          });
+			try {
+				await window.ethereum.request({
+					method: 'eth_requestAccounts',
+				});
+
+				// check
+				const chainId = await window.ethereum.request({
+					method: 'eth_chainId',
+				});
+				if (chainId !== CHAIN_ID) {
+					const success = await this.switchNetwork();
+					if (!success) return;
+				}
+
+				const accounts = await window.ethereum.request({
+					method: 'eth_accounts',
+				});
+				await this.handleAccount(accounts);
+			} catch (error) {
+				if (error.code === 4001) {
+					this.$message.error('User rejected');
+				} else {
+					this.$message.error('Connect Error');
+					console.error(error);
+				}
+			}
     },
-    async setupNetwork() {
-      try {
-        await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [
-            {
-              chainId: chainID,
-              chainName: 'QuarkChain L2 Testnet',
-              nativeCurrency: {
-                name: 'QKC',
-                symbol: 'QKC',
-                decimals: 18,
-              },
-              rpcUrls: nodes,
-              blockExplorerUrls: explorers,
-            },
-          ],
-        })
-        const newChainId = await window.ethereum.request({method: "eth_chainId"});
-        if (chainID !== newChainId) {
-          this.$message.error('User rejected');
-          return false;
-        }
-        return true;
-      } catch (error) {
-        this.$message.error('Failed to setup the network in Metamask');
-        return false
-      }
+    async switchNetwork() {
+			try {
+				await window.ethereum.request({
+					method: 'wallet_switchEthereumChain',
+					params: [{ chainId: CHAIN_ID }],
+				});
+				return true;
+			} catch (error) {
+				if (error.code === 4001) {
+					this.$message.error(`Please switch to Sepolia network`);
+				} else {
+					this.$message.error('Failed to switch network');
+					console.error(error);
+				}
+				return false;
+			}
     },
     goProfile(){
       this.$router.push({path: "/address"});

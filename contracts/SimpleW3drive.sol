@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -21,7 +21,7 @@ interface IERC5018 {
     }
 
     // Large storage methods
-    function write(bytes memory name, bytes memory data) external payable;
+    function write(bytes memory name, bytes memory data) external;
 
     function read(bytes memory name) external view returns (bytes memory, bool);
 
@@ -33,15 +33,16 @@ interface IERC5018 {
     function countChunks(bytes memory name) external view returns (uint256);
 
     // Chunk-based large storage methods
-    function writeChunk(
-        bytes memory name,
-        uint256 chunkId,
-        bytes memory data
-    ) external payable;
+    function writeChunkByCalldata(bytes memory name, uint256 chunkId, bytes memory data) external;
 
-    function writeChunks(bytes memory name, uint256[] memory chunkIds, uint256[] memory sizes) external payable;
+    function writeChunksByBlobs(bytes memory name, uint256[] memory chunkIds, uint256[] memory sizes) external payable;
 
     function readChunk(bytes memory name, uint256 chunkId) external view returns (bytes memory, bool);
+
+    function readChunksPaged(bytes memory name, uint256 startChunkId, uint256 limit)
+    external
+    view
+    returns (bytes[] memory chunks);
 
     function chunkSize(bytes memory name, uint256 chunkId) external view returns (uint256, bool);
 
@@ -49,17 +50,16 @@ interface IERC5018 {
 
     function truncate(bytes memory name, uint256 chunkId) external returns (uint256);
 
-    function refund() external;
-
-    function destruct() external;
-
     function getChunkHash(bytes memory name, uint256 chunkId) external view returns (bytes32);
 
     function getChunkHashesBatch(FileChunk[] memory fileChunks) external view returns (bytes32[] memory);
 
     function getChunkCountsBatch(bytes[] memory names) external view returns (uint256[] memory);
 
-    function getUploadInfo(bytes memory name) external view returns (StorageMode mode, uint256 chunkCount, uint256 storageCost);
+    function getUploadInfo(bytes memory name)
+    external
+    view
+    returns (StorageMode mode, uint256 chunkCount, uint256 storageCost);
 }
 
 contract SimpleW3drive {
@@ -106,14 +106,14 @@ contract SimpleW3drive {
     }
 
     function writeChunk(
-        bytes memory uuid, bytes memory name,
-        bytes memory iv, bytes memory fileType, uint256 chunkCount,
-        uint256 chunkId, bytes calldata data
-    )
-        public
-        payable
-        isCreatedDrive
-    {
+        bytes memory uuid,
+        bytes memory name,
+        bytes memory iv,
+        bytes memory fileType,
+        uint256 chunkCount,
+        uint256 chunkId,
+        bytes calldata data
+    ) public isCreatedDrive {
         bytes32 uuidHash = keccak256(uuid);
         FilesInfo storage info = fileInfos[msg.sender];
         if (info.fileIds[uuidHash] == 0) {
@@ -122,7 +122,7 @@ contract SimpleW3drive {
             info.fileIds[uuidHash] = info.files.length;
         }
 
-        fileFD.writeChunk{value: msg.value}(getNewName(msg.sender, uuid), chunkId, data);
+        fileFD.writeChunkByCalldata(getNewName(msg.sender, uuid), chunkId, data);
     }
 
     function remove(bytes memory uuid) public returns (uint256) {
@@ -141,8 +141,6 @@ contract SimpleW3drive {
         delete info.fileIds[uuidHash];
 
         uint256 id = fileFD.remove(getNewName(msg.sender, uuid));
-        fileFD.refund();
-        payable(msg.sender).transfer(address(this).balance);
         return id;
     }
 
@@ -152,23 +150,14 @@ contract SimpleW3drive {
         }
     }
 
-    function getNewName(address author,bytes memory name) public pure returns (bytes memory) {
-        return abi.encodePacked(
-            Strings.toHexString(uint256(uint160(author)), 20),
-            '/',
-            name
-        );
+    function getNewName(address author, bytes memory name) public pure returns (bytes memory) {
+        return abi.encodePacked(Strings.toHexString(uint256(uint160(author)), 20), "/", name);
     }
 
     function getFileInfos()
-        public
-        view
-        returns (
-            uint256[] memory times,
-            bytes[] memory uuids,
-            bytes[] memory names,
-            bytes[] memory types
-        )
+    public
+    view
+    returns (uint256[] memory times, bytes[] memory uuids, bytes[] memory names, bytes[] memory types)
     {
         uint256 length = fileInfos[msg.sender].files.length;
         times = new uint256[](length);
@@ -184,16 +173,16 @@ contract SimpleW3drive {
     }
 
     function getFileInfo(bytes memory uuid)
-        public
-        view
-        returns(
-            uint256 realChunkCount,
-            uint256 chunkCount,
-            uint256 time,
-            bytes memory name,
-            bytes memory fileType,
-            bytes memory iv
-        )
+    public
+    view
+    returns (
+        uint256 realChunkCount,
+        uint256 chunkCount,
+        uint256 time,
+        bytes memory name,
+        bytes memory fileType,
+        bytes memory iv
+    )
     {
         uint256 count = countChunks(uuid);
         bytes32 uuidHash = keccak256(uuid);
@@ -203,12 +192,12 @@ contract SimpleW3drive {
         return (count, file.chunkCount, file.time, file.name, file.fileType, file.iv);
     }
 
-    function getFile(bytes memory uuid, uint256 chunkId) public view returns(bytes memory) {
-        (bytes memory data, ) = fileFD.readChunk(getNewName(msg.sender, uuid), chunkId);
+    function getFile(bytes memory uuid, uint256 chunkId) public view returns (bytes memory) {
+        (bytes memory data,) = fileFD.readChunk(getNewName(msg.sender, uuid), chunkId);
         return data;
     }
 
-    function getDrive() public view returns(bytes memory uuid, bytes memory iv, bytes memory driveEncrypt) {
+    function getDrive() public view returns (bytes memory uuid, bytes memory iv, bytes memory driveEncrypt) {
         FilesInfo storage info = fileInfos[msg.sender];
         return (info.uuid, info.cipherIV, info.driveEncrypt);
     }
