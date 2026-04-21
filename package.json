@@ -37,6 +37,9 @@
     "vm-browserify": "^1.1.2",
     "webpack": "^5.106.2"
   },
+  "resolutions": {
+    "serialize-javascript": "^7.0.5"
+  },
   "eslintConfig": {
     "root": true,
     "env": {
