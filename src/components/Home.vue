@@ -25,7 +25,7 @@ import W3qDeployer from '@/components/w3q-deployer.vue';
 import {getDrive, login, createDrive, encryptDrive} from '@/utils/dirve/w3drive';
 
 export default {
-  name: 'Home',
+  name: 'HomePage',
   components: {W3qDeployer},
   data: () => {
     return {

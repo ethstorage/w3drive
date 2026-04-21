@@ -24,7 +24,7 @@ const chain = 11155111;
 const CHAIN_ID = `0x${chain.toString(16)}`;
 
 export default {
-  name: "Wallet",
+  name: "WalletView",
   props: {},
 
   data: () => ({

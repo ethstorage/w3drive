@@ -36,7 +36,7 @@ const stringToHex = (s) => ethers.utils.hexlify(ethers.utils.toUtf8Bytes(s));
 const hexToString = (h) => ethers.utils.toUtf8String(h);
 
 export default {
-  name: 'File',
+  name: 'FileView',
   data: () => {
     return {
       showProgress: false,
@@ -159,8 +159,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-@import "../assets/styles/mixins.scss";
-@import "../assets/styles/vars.scss";
+@use "../assets/styles/mixins.scss" as *;
+@use "../assets/styles/vars.scss" as *;
 
 .domain-loading {
   min-width: 40vw;
